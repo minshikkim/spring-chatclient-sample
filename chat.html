@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="//fonts.googleapis.com/css?family=Lato:300,500,900" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
+  <link href="/css/chat.css" rel="stylesheet">
+  <script src="/js-library/jquery.js"></script>
+  <script src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.0.1/mustache.min.js" integrity="sha512-6AXIWogbKpsHvoZJrJtHpIYES4wP8czSj0zk7ZfwOYS8GWYFNSykwdfapt7yQc4ikZytemBu+QyVObzBHJMwYg==" crossorigin="anonymous"></script>
+  <script src="/js-library/stomp.js"></script>
+  <title>Document</title>
+  <script>
+    
+  </script>
+</head>
+<body>
+
+
+    <!-- 채팅버튼 -->
+  <button id="chatbtn" class="btn btn-special fixed" style="display: none;"  onclick="openChat()">
+      Chat
+      <div id="unreadCntBadge" class="badge">10</div>
+  </button>
+
+  <!-- 아이디 전송 -->
+  <form id="form1" name="form1" method="post">
+    <input id="input_user_id" type="text" name="name">
+    <input type="button" value="접속" onclick="login(); return false">
+</form>
+
+  <!-- 채팅 -->
+  <div id="container">
+
+      <div class="header" >
+          <div>
+              <button id="back" class="btn btn-round btn-icon" onclick="backChat()">
+                  <i class="fa fa-chevron-left"></i>
+              </button>
+              <span class="title">Chat</span>
+              <p>상대방 고유아이디</p>
+              <span class="recipent-id">recipent-id</span>
+          </div>
+
+          <button class="btn btn-round btn-icon" onclick="closeChat()">
+              <i class="fa fa-times"></i>
+          </button>
+      </div>
+
+      <div class="wrapper" >
+          <div class="list">
+              <input type="text" class="search" placeholder="&#xF002; Search">
+              <div class="conversations">
+
+                  <!-- <div class="conversation">
+                      <div class="top">
+                          <span class="badge">8</span>
+                          <span class="title">title title title title title title title title title t</span>
+                          <span class="time">18:10</span>
+                      </div>
+                      <div class="bottom">
+                          <span class="user">João:</span>
+                          <span class="message">last message last message last message last</span>
+                      </div>
+                  </div> -->
+
+                  <div id="con" class="conversation active">
+                      <div class="top">
+                          <span class="badge">2</span>
+                          <span class="title">Title</span>
+                          <span class="time">Yesterday</span>
+                      </div>
+                      <div class="bottom">
+                          <span class="user">Sofia:</span>
+                          <span class="message">last message</span>
+                      </div>
+                  </div>
+
+                  <!-- <div class="conversation">
+                      <div class="top">
+                          <span></span>
+                          <span class="title">Title 2</span>
+                          <span class="time">15/05/2019</span>
+                      </div>
+                      <div class="bottom">
+                          <span class="user">Carlos:</span>
+                          <span class="message">last message 2</span>
+                      </div>
+                  </div> -->
+
+
+              </div>
+          </div>
+
+          <div class="chat close">
+              <div class="body chat-body" style="overflow:scroll;">
+
+                  <div class="seperator">
+                      <div class="line"></div>
+                      <div class="moment">17 Maio, 2019</div>
+                      <div class="line"></div>
+                  </div>
+
+                  <div class="user left">
+                      <div class="messages">
+                          <div class="message">
+                              <div class="message-container">
+                                  <div class="message-sender">João</div>
+                                  <p class="text">Hi</p>
+                                  <p class="text">What's up?</p>
+                              </div>
+                              <div class="message-time">12:08</div>
+                          </div>
+                      </div>
+                      <p style="color: black;">읽음</p>
+                  </div>
+                
+                  <div class="user right">
+                      <div class="messages">
+                          <div class="message">
+                              <div class="message-container">
+                                  <div class="message-sender">Rui</div>
+                                  <p class="text">Not much</p>
+                              </div>
+                              <div class="message-time">12:10</div>
+                          </div>
+                      </div>
+                      <p style="color: black;">읽음</p>
+                  </div>
+
+                  <!-- <div class="user left">
+                      <div class="messages">
+                          <div class="message">
+                              <div class="message-container">
+                                  <div class="message-sender">João</div>
+                                  <p class="text">Have you seen this file?</p>
+                                  <div class="attachements">
+                                      <a href="" class="file" download>&nbsp;Filename.cs</a>
+                                  </div>
+                              </div>
+                              <div class="message-time">12:11</div>
+                          </div>
+                      </div>
+                  </div> -->
+
+              </div>
+              <div class="footer">
+                  <div class="actions">
+                      <textarea id="message-input" class="auto-expand input" rows="1" data-min-rows="1" placeholder="Write message"></textarea>
+                      <div class="send">
+                          <button id="msg-send-btn" class="btn btn-round btn-icon">
+                              <i class="fa fa-paper-plane"></i>
+                          </button>
+                      </div>
+                  </div>
+
+                  <div class="options">
+                      <button class="btn btn-icon btn-round" onclick="openDrawer()">
+                          <i class="fa fa-ellipsis-v"></i>
+                      </button>
+
+                      <label class="btn btn-round btn-icon" for="file">
+                          <i class="fa fa-paperclip"></i>
+                      </label>
+                      <input id="file" type="file" accept="*" multiple>
+                  </div>
+
+                  <div class="files">
+                      <div class="file">
+                          <div class="info">
+                              <img class="image"/>
+                              filename
+                          </div>
+                          <i class="fa fa-times-circle fa-lg"></i>
+                          <div class="file-progress"></div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+
+
+          <div class="drawer close">
+              <button class="btn btn-round btn-icon" onclick="closeDrawer()">
+                  <i class="fa fa-times"></i>
+              </button>
+
+              <div class="users">
+                  <h2>Users</h2>
+                  <div class="mentions">
+                      <div class="pill">
+                          <img src="http://cranesafeservices.com.au/wp-content/uploads/2016/09/240_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg">
+                          <span>João Roberto</span>
+                      </div>
+                      <div class="pill">
+                          <img src="http://cranesafeservices.com.au/wp-content/uploads/2016/09/240_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg">
+                          <span>Rui Gilberto</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="files">
+                  <h2>Files</h2>
+                  <div class="mentions">
+                      <div class="pill">
+                          <span>Filename.cs</span>
+                          <i class="fa fa-arrow-down"></i>
+                      </div>
+                  </div>
+              </div>
+              <div class="projects">
+                  <h2>Projects</h2>
+                  <div class="mentions">
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Project1.cs</span>
+                      </div>
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Project2.cs</span>
+                      </div>
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Project3.cs</span>
+                      </div>
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Project4.cs</span>
+                      </div>
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Project5.cs</span>
+                      </div>
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Project6.cs</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="ideas">
+                  <h2>Ideas</h2>
+                  <div class="mentions">
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Idea1.cs</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="samples">
+                  <h2>Samples</h2>
+                  <div class="mentions">
+                      <div class="pill">
+                          <i class="fa fa-link"></i>
+                          <span>Sample1.cs</span>
+                      </div>
+                  </div>
+              </div>
+
+          </div>
+      </div>
+  </div>
+
+  <script src="/js/chat.js"></script>
+</body>
+</html>

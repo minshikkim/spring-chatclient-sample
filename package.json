@@ -1,0 +1,19 @@
+{
+  "name": "sample-chatui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^4.5.2",
+    "jquery": "^3.5.1",
+    "moment": "^2.29.0",
+    "sockjs": "^0.3.21",
+    "sockjs-client": "^1.5.0",
+    "stompjs": "^2.3.3"
+  }
+}
