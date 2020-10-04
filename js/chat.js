@@ -5,6 +5,13 @@ var globalRoomId;
 var reciId = "";
 var ppid = "";
 
+var state = 0;
+
+
+
+
+
+
 
 
 
@@ -12,10 +19,9 @@ var ppid = "";
 
 function openChat () {
   document.getElementById('container').classList.add('open');
-
-  // 채팅방을 열었을 떄!!
   var roomAndChatMessages = getRoomAndMessages(globalUserId)
-  makeChatConversationDom(roomAndChatMessages)
+  makeChatConversationDom(roomAndChatMessages) 
+  state = 1;
 }
 
 function closeChat () {
@@ -263,18 +269,49 @@ const subScribe = (userId, stompClient) => {
   stomp = stompClient
   stompClient.subscribe("/topic/chat/" + userId, function (frame) {
     const unRead = document.getElementById('unreadCntBadge').textContent;
-
-     
     document.getElementById('unreadCntBadge').textContent = parseFloat(document.getElementById('unreadCntBadge').textContent) + parseFloat(1);
+
+    //              <div id="con" class="conversation active">
+    //                   <div class="top">
+    //                       <span class="badge">2</span>
+    //                       <span class="title">Title</span>
+    //                       <span class="time">Yesterday</span>
+    //                   </div>
+    //                   <div class="bottom">
+    //                       <span class="user">Sofia:</span>
+    //                       <span class="message">last message</span>
+    //                   </div>
+    //               </div>
 
 
 
     // 노티피케이션 테스트 (유저가 어디에 있던 띄어주면 이상한가?.. 맞아 이상해 왜냐하면 상대방이랑 대화하고 있는데 noti면 이상하지!!)
-    // 현재 유저가 어디있는 지를 판단해서 보내주자!
-    if(Notification.permission === "granted"){
-      var notification = new Notification("New Message fromn dcode!", {
-        body : JSON.parse(frame.body).message,
-      });
+    // 현재 유저가 어디있는 지를 판단해서 보내주자! 
+    if(state == 0){ // 만약 채팅창을 클릭하지 않은 상태라면
+      if(Notification.permission === "granted"){
+        var notification = new Notification("New Message fromn dcode!", {
+          body : JSON.parse(frame.body).message,
+        });
+      }
+    }else if(state == 1){ // 채팅창 목록화면에 들어온 상태
+      // 모든 .conversion 인 태그를 찾는다.
+      document.querySelectorAll('.conversation').forEach(function(conversation) {
+        
+        // 그 중에서 만약에 기존에 채팅방이 있을 경우에는
+        if(conversation.classList.contains('recipent-' + JSON.parse(frame.body).senderId) && conversation.classList.contains('product-' + JSON.parse(frame.body).objectId)){
+          console.log('채팅방 UI에 있음')
+          
+          conversation.querySelector('.badge').textContent = parseFloat(conversation.querySelector('.badge').textContent) + 1
+          conversation.querySelector('.bottom .message').textContent = JSON.parse(frame.body).message;
+
+          var userId = getUserOf(JSON.parse(frame.body).senderId);
+          
+          
+          conversation.querySelector('.bottom .user').textContent = userId.userNickname
+        }else {
+          console.log('채팅방 UI에 없음') 
+        }
+      })
     }
   })
 }
@@ -383,8 +420,8 @@ const makeChatConversationDom = function(rooms){
     latestMsg = rooms[i].chatMessage[0]
 
     // 각 채팅방의 읽지 않은 메시지 개수 찾는 다.
-    if(rooms[i].chatMessage.length != 0){
-      unreadMsgCnt = rooms[i].chatMessage.filter(msg => msg.status == 0 ).length
+    if(rooms[i].chatMessage.length != 0){ // 한개라도 있는 것들 
+      unreadMsgCnt = rooms[i].chatMessage.filter(msg => msg.status == 0 && msg.senderId != globalUserId).length
     }
     
 
@@ -406,7 +443,8 @@ const makeChatConversationDom = function(rooms){
   
     const topBadge = document.createElement("span")
     topBadge.className = "badge";
-    topBadge.textContent = unreadMsgCnt;
+    topBadge.textContent = unreadMsgCnt; // 상대방이 읽지 않은 상태만 반영해야함. 상대방이 나의 메시지를 읽지 않아서 상태값이 0인것은 반영하면 안됨
+
     
     
     
